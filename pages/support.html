@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support | Roseate Capital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F7F5F2;--white:#FFF;--ink:#0D0D0C;--ink2:#1A1917;--muted:#888580;--border:#E5E2DC;--gold:#B8924A;--gold2:#D4A85C;--surface:#F0EDE8}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;font-weight:300;overflow-x:hidden}
+::selection{background:var(--gold);color:#fff}
+.topbar{background:var(--ink);color:rgba(255,255,255,.55);font-size:.68rem;letter-spacing:.1em;text-align:center;padding:.6rem 1rem}
+.topbar a{color:#fff;text-underline-offset:3px}
+nav{position:sticky;top:0;z-index:300;background:rgba(247,245,242,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:62px}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);text-decoration:none}
+.nav-center{display:flex;gap:2rem;list-style:none}
+.nav-center a{font-size:.72rem;letter-spacing:.05em;color:var(--muted);text-decoration:none;position:relative;transition:color .2s}
+.nav-center a::after{content:'';position:absolute;left:0;right:0;bottom:-4px;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.nav-center a:hover{color:var(--ink)}
+.nav-center a:hover::after{transform:scaleX(1)}
+.nav-right{display:flex;align-items:center;gap:.75rem}
+.n-login{font-size:.72rem;letter-spacing:.05em;color:var(--muted);text-decoration:none;transition:color .2s}
+.n-login:hover{color:var(--ink)}
+.n-cta{background:var(--ink);color:#fff;font-size:.7rem;font-weight:500;letter-spacing:.06em;padding:.5rem 1.1rem;border-radius:100px;text-decoration:none;transition:all .25s;white-space:nowrap}
+.n-cta:hover{background:var(--gold);transform:translateY(-1px)}
+
+.support-wrap{max-width:1200px;margin:0 auto;padding:6rem 2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.plabel{font-size:.62rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:1.5rem}
+.ph1{font-family:'Syne',sans-serif;font-size:clamp(2.4rem,5vw,4rem);font-weight:800;line-height:.95;letter-spacing:-.03em;text-transform:uppercase;color:var(--ink)}
+.psub{margin-top:1.5rem;font-size:.95rem;line-height:1.8;color:var(--muted);max-width:420px}
+.contact-info{margin-top:3rem;border-top:1px solid var(--border)}
+.ci-row{padding:1.25rem 0;border-bottom:1px solid var(--border)}
+.ci-k{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
+.ci-v{font-size:.9rem;color:var(--ink)}
+
+/* FORM */
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:2.5rem}
+.field{margin-bottom:1.5rem}
+.field label{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;font-weight:500}
+.field input,.field select,.field textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;font-family:'Inter',sans-serif;font-size:.88rem;color:var(--ink);font-weight:300;transition:border-color .2s,background .2s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold);background:var(--white)}
+.field textarea{resize:vertical;min-height:120px}
+.submit-btn{width:100%;background:var(--ink);color:#fff;border:none;border-radius:100px;padding:.95rem;font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .25s}
+.submit-btn:hover{background:var(--gold);transform:translateY(-2px)}
+.success-msg{display:none;text-align:center;padding:3rem 1rem}
+.success-msg.show{display:block}
+.success-icon{width:56px;height:56px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1.5rem}
+.success-msg h3{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:.75rem}
+.success-msg p{font-size:.88rem;color:var(--muted);line-height:1.7}
+
+footer{background:#0A0A09;padding:5rem 2.5rem 2.5rem;border-top:1px solid var(--border)}
+.ft{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:4rem;max-width:1200px;margin:0 auto 4rem}
+.f-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;letter-spacing:.06em;text-transform:uppercase;color:#fff;margin-bottom:1rem}
+.f-about{font-size:.8rem;color:rgba(255,255,255,.3);line-height:1.85;max-width:240px}
+.f-h{font-size:.58rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:1.25rem}
+.fl{list-style:none}.fl li{margin-bottom:.6rem}
+.fl a{font-size:.8rem;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s}
+.fl a:hover{color:#fff}
+.f-c{font-size:.8rem;color:rgba(255,255,255,.3);line-height:1.85}
+.fb{max-width:1200px;margin:0 auto;border-top:1px solid rgba(255,255,255,.05);padding-top:1.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.fc{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.15)}
+
+.r{opacity:0;transform:translateY(24px);transition:opacity .8s cubic-bezier(.4,0,.2,1),transform .8s cubic-bezier(.4,0,.2,1)}
+.r.on{opacity:1;transform:none}
+.d1{transition-delay:.1s}
+
+@media(max-width:1100px){.support-wrap{grid-template-columns:1fr;gap:3rem}.ft{grid-template-columns:1fr 1fr}}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+
+
+
+
+
+
+
+
+
+
+@media(max-width:768px){.nav-right .btn{display:none}}
+
+/* ── MOBILE HAMBURGER ── */
+.mob-btn{
+  display:none;
+  position:fixed;top:18px;right:1.25rem;z-index:900;
+  width:36px;height:36px;
+  background:none;
+  border:none;border-radius:0;
+  flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;
+  cursor:pointer;padding:0;
+  opacity:0;transform:translateY(-6px);
+  transition:opacity .4s cubic-bezier(.34,1.56,.64,1), transform .4s cubic-bezier(.34,1.56,.64,1);
+  will-change:transform,opacity;
+}
+.mob-btn.visible{opacity:1;transform:translateY(0)}
+.mob-btn:active{opacity:.6}
+.mob-btn span{
+  display:block;width:24px;height:1.5px;
+  background:var(--ink,#0D0D0C);
+  transform-origin:center;
+  transition:transform .4s cubic-bezier(.7,0,.3,1), opacity .3s ease, width .3s ease;
+}
+.mob-btn.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.mob-btn.open span:nth-child(2){opacity:0;width:0}
+.mob-btn.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+
+/* backdrop */
+.mob-backdrop{
+  display:none;position:fixed;inset:0;z-index:800;
+  background:rgba(0,0,0,0);
+  backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);
+  transition:background .45s ease, backdrop-filter .45s ease;
+}
+.mob-backdrop.open{display:block}
+.mob-backdrop.visible{background:rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+
+/* drawer */
+.mob-drawer{
+  position:fixed;top:0;right:0;bottom:0;z-index:850;
+  width:min(300px,82vw);
+  background:#0D0D0C;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:3.5rem 2.25rem 3rem;
+  transform:translateX(100%);
+  transition:transform .5s cubic-bezier(.7,0,.3,1);
+  will-change:transform;
+  overflow:hidden;
+}
+/* shimmer bar at left edge */
+.mob-drawer::before{
+  content:'';position:absolute;top:0;left:0;width:2px;height:100%;
+  background:linear-gradient(to bottom,transparent,var(--gold,#B8924A),transparent);
+  opacity:0;transform:scaleY(0);transform-origin:top;
+  transition:opacity .3s ease .4s, transform .5s cubic-bezier(.7,0,.3,1) .4s;
+}
+.mob-drawer.open{transform:translateX(0)}
+.mob-drawer.open::before{opacity:1;transform:scaleY(1)}
+
+/* each link starts hidden, slides in when drawer opens */
+.mob-drawer a{
+  display:block;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:1.55rem;
+  letter-spacing:.01em;text-transform:uppercase;
+  color:rgba(255,255,255,.85);text-decoration:none;
+  padding:.55rem 0;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  opacity:0;transform:translateX(24px);
+  transition:color .2s, border-color .2s, opacity .35s ease, transform .35s cubic-bezier(.5,0,.3,1);
+  position:relative;
+}
+.mob-drawer a::after{
+  content:'';position:absolute;left:0;bottom:0;width:0;height:1px;
+  background:var(--gold,#B8924A);
+  transition:width .3s cubic-bezier(.7,0,.3,1);
+}
+.mob-drawer a:hover{color:#fff}
+.mob-drawer a:hover::after{width:100%}
+.mob-drawer.open a{opacity:1;transform:translateX(0)}
+.mob-drawer.open a:nth-child(2){transition-delay:.08s}
+.mob-drawer.open a:nth-child(3){transition-delay:.13s}
+.mob-drawer.open a:nth-child(4){transition-delay:.18s}
+.mob-drawer.open a:nth-child(5){transition-delay:.23s}
+.mob-drawer.open a:nth-child(6){transition-delay:.28s}
+.mob-drawer.open a:nth-child(7){transition-delay:.33s}
+
+.mob-drawer a:last-child{border-bottom:none}
+.mob-drawer .mob-portal{
+  margin-top:2rem;
+  padding:.7rem 1.6rem;
+  background:var(--gold,#B8924A);
+  color:#fff!important;
+  border-radius:100px;
+  font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase!important;
+  text-align:center;border-bottom:none!important;
+  opacity:0;transform:translateY(10px);
+  transition:background .25s, opacity .35s ease .36s, transform .35s cubic-bezier(.5,0,.3,1) .36s;
+}
+.mob-drawer.open .mob-portal{opacity:1;transform:translateY(0)}
+.mob-drawer .mob-portal:hover{background:var(--gold2,#D4A85C)}
+.mob-drawer .mob-portal::after{display:none}
+
+.mob-drawer-close{
+  position:absolute;top:1.1rem;right:1.1rem;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  width:34px;height:34px;border-radius:50%;
+  color:rgba(255,255,255,.6);font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s, color .2s, transform .2s;
+  opacity:0;transform:rotate(-90deg) scale(.8);
+  transition:opacity .3s ease .3s, transform .35s cubic-bezier(.34,1.56,.64,1) .3s, background .2s, color .2s;
+}
+.mob-drawer.open .mob-drawer-close{opacity:1;transform:rotate(0deg) scale(1)}
+.mob-drawer-close:hover{background:rgba(255,255,255,.14);color:#fff}
+
+@media(max-width:768px){
+  .mob-btn{display:flex}
+  nav{padding:0 1.25rem}
+  .nav-center{display:none}
+  .nav-right{display:none}
+  .hero-h1{font-size:clamp(1.5rem,8.5vw,2.8rem)!important;line-height:.95!important;word-break:break-word!important;overflow-wrap:break-word!important}
+  .hero-content{padding:2rem 1.25rem 2.5rem;flex-direction:column;align-items:flex-start;overflow:hidden;max-width:100vw}
+  .hero-right{display:none}
+  .hero-clocks{display:none}
+  .scroll-cue{display:none}
+  section{padding:3.5rem 1.25rem}
+  .phero{padding:5rem 1.25rem 3rem}
+  .ft{grid-template-columns:1fr}
+  .fb{flex-direction:column;gap:.75rem}
+}
+@media(min-width:769px){.mob-btn,.mob-backdrop,.mob-drawer{display:none!important}}}
+
+</style>
+</head>
+<body>
+
+<div class="topbar">All fees credited back with your first withdrawal — <a href="support.html">Schedule a consultation →</a></div>
+
+<nav>
+  <a class="nav-logo" href="../index.html">Roseate Capital</a>
+  <ul class="nav-center">
+    <li><a href="about.html">Approach</a></li>
+    <li><a href="accounts.html">Strategies</a></li>
+    <li><a href="performance.html">Performance</a></li>
+    <li><a href="compliance.html">Compliance</a></li>
+    <li><a href="news.html">News</a></li>
+  </ul>
+  <div class="nav-right">
+    <a class="n-login" href="portal.html">Client Login</a>
+    <a class="n-cta" href="portal.html">Get Started</a>
+  </div>
+  <button class="mob-btn" aria-label="Open menu"><span></span><span></span><span></span></button>
+</nav>
+<div class="mob-backdrop"></div>
+<div class="mob-drawer">
+  <button class="mob-drawer-close" aria-label="Close">✕</button>
+  <a href="about.html">Approach</a>
+  <a href="accounts.html">Strategies</a>
+  <a href="performance.html">Performance</a>
+  <a href="compliance.html">Compliance</a>
+  <a href="news.html">News</a>
+  <a href="support.html">Support</a>
+  <a href="portal.html" class="mob-portal">Client Portal</a>
+</div>
+
+<div class="support-wrap">
+  <div class="r">
+    <div class="plabel">Partner Support</div>
+    <h1 class="ph1">How can<br>we help?</h1>
+    <p class="psub">Submit your inquiry below and our support team will respond within 24 hours.</p>
+    <div class="contact-info">
+      <div class="ci-row"><div class="ci-k">Email</div><div class="ci-v">info@roseatecapital.com</div></div>
+      <div class="ci-row"><div class="ci-k">Melbourne</div><div class="ci-v">101 Collins Street, Melbourne, AU</div></div>
+      <div class="ci-row"><div class="ci-k">Dubai</div><div class="ci-v">Business Bay, Dubai, UAE</div></div>
+      <div class="ci-row"><div class="ci-k">Phone</div><div class="ci-v">+61 0469 368 964</div></div>
+    </div>
+  </div>
+
+  <div class="form-card r d1">
+    <div id="formInner">
+      <div class="field"><label>Name</label><input type="text" id="f-name" placeholder="Your full name"></div>
+      <div class="field"><label>Email Address</label><input type="email" id="f-email" placeholder="you@email.com"></div>
+      <div class="field"><label>Subject</label>
+        <select id="f-subject">
+          <option>Technical Issue / Portal Access</option>
+          <option>Investment Inquiry</option>
+          <option>Compliance / Regulatory Request</option>
+          <option>General Support</option>
+        </select>
+      </div>
+      <div class="field"><label>Message</label><textarea id="f-message" placeholder="How can we assist you?"></textarea></div>
+      <button class="submit-btn" onclick="submitForm()">Submit Inquiry</button>
+    </div>
+    <div class="success-msg" id="successMsg">
+      <div class="success-icon">✓</div>
+      <h3>Inquiry Received</h3>
+      <p>Our support team will respond to your email within 24 hours.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft">
+    <div><div class="f-brand">Roseate Capital</div><p class="f-about">Asset & Investment Management — delivering institutional-grade returns for discerning investors across global markets.</p></div>
+    <div><div class="f-h">Navigate</div><ul class="fl"><li><a href="../index.html">Home</a></li><li><a href="about.html">Approach</a></li><li><a href="accounts.html">Strategies</a></li><li><a href="performance.html">Performance</a></li><li><a href="compliance.html">Compliance</a></li><li><a href="news.html">News</a></li><li><a href="support.html">Contact Us</a></li></ul></div>
+    <div><div class="f-h">Legal</div><ul class="fl"><li><a href="compliance.html">Terms</a></li><li><a href="compliance.html">Privacy</a></li><li><a href="compliance.html">Compliance</a></li><li><a href="portal.html">Login</a></li></ul></div>
+    <div><div class="f-h">Contact</div><p class="f-c">info@roseatecapital.com<br><br>101 Collins Street<br>Melbourne, AU<br><br>Business Bay, Dubai, UAE<br><br>+61 0469 368 964</p></div>
+  </div>
+  <div class="fb"><span class="fc">© 2026 Roseate Capital Asset & Investment Management LTD</span><span class="fc">Established in Excellence</span></div>
+</footer>
+
+<script>
+function submitForm(){
+  document.getElementById('formInner').style.display='none';
+  document.getElementById('successMsg').classList.add('show');
+}
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');obs.unobserve(e.target)}}),{threshold:.08});
+document.querySelectorAll('.r').forEach(el=>obs.observe(el));
+</script>
+
+
+<script>
+(function(){
+  var btn=document.querySelector('.mob-btn');
+  var drawer=document.querySelector('.mob-drawer');
+  var backdrop=document.querySelector('.mob-backdrop');
+  var closeBtn=document.querySelector('.mob-drawer-close');
+  if(!btn||!drawer)return;
+
+  var shown=false;
+  var navH=62;
+
+  function updateBtn(y){
+    if(y>navH&&!shown){
+      shown=true;
+      btn.classList.add('visible');
+    } else if(y<=navH&&shown&&!drawer.classList.contains('open')){
+      shown=false;
+      btn.classList.remove('visible');
+    }
+    // lines go white over dark hero, dark over light sections
+    var heroH=document.querySelector('.hero')||document.querySelector('.phero');
+    var heroBottom=heroH?(heroH.offsetTop+heroH.offsetHeight):600;
+    var isDark=y<heroBottom-navH;
+    btn.querySelectorAll('span').forEach(function(s){
+      s.style.background=isDark?'#fff':'var(--ink,#0D0D0C)';
+    });
+  }
+
+  window.addEventListener('scroll',function(){
+    updateBtn(window.scrollY||window.pageYOffset);
+  },{passive:true});
+
+  function openMenu(){
+    drawer.classList.add('open');
+    backdrop.classList.add('open');
+    btn.classList.add('open');
+    document.body.style.overflow='hidden';
+    setTimeout(function(){backdrop.classList.add('visible');},10);
+  }
+  function closeMenu(){
+    drawer.classList.remove('open');
+    backdrop.classList.remove('visible');
+    btn.classList.remove('open');
+    document.body.style.overflow='';
+    setTimeout(function(){backdrop.classList.remove('open');},400);
+  }
+
+  btn.addEventListener('click',function(){
+    drawer.classList.contains('open')?closeMenu():openMenu();
+  });
+  if(closeBtn)closeBtn.addEventListener('click',closeMenu);
+  backdrop.addEventListener('click',closeMenu);
+  drawer.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',closeMenu);
+  });
+})();
+</script>
+</body>
+</html>

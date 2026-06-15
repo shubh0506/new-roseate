@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin CRM | Roseate Capital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060606;--surface:#0F0F0E;--surface2:#161615;--surface3:#1C1C1A;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --muted:rgba(255,255,255,.36);--muted2:rgba(255,255,255,.6);
+  --gold:#B8924A;--gold2:#D4A85C;--gold3:#E8C07A;
+  --green:#4CAF82;--red:#E05C5C;--blue:#5B8DEF;--purple:#9B7FE8;
+  --sidebar-w:290px;
+}
+body{background:var(--bg);color:#fff;font-family:'Inter',sans-serif;font-weight:400;min-height:100vh;display:flex;overflow:hidden}
+::selection{background:var(--gold);color:#fff}
+
+/* ── SIDEBAR ───────────────────────────── */
+.sidebar{width:var(--sidebar-w);height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sb-head{padding:1.25rem 1.25rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-brand{display:flex;align-items:center;gap:.7rem;margin-bottom:.85rem}
+.sb-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--gold),var(--gold3));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-icon svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sb-brand-text{font-family:'Syne',sans-serif;font-weight:800;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+.sb-admin-badge{display:inline-flex;align-items:center;gap:.3rem;background:rgba(155,127,232,.12);border:1px solid rgba(155,127,232,.2);border-radius:6px;padding:.2rem .55rem;font-size:.56rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--purple)}
+
+.sb-search{position:relative}
+.sb-search input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.6rem .85rem .6rem 2rem;font-size:.74rem;color:#fff;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.sb-search input:focus{border-color:var(--gold)}
+.sb-search input::placeholder{color:var(--muted)}
+.sb-search-icon{position:absolute;left:.65rem;top:50%;transform:translateY(-50%);width:13px;height:13px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.sb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;padding:.85rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-stat{text-align:center}
+.sb-stat-val{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--gold2)}
+.sb-stat-label{font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.15rem}
+
+.sb-clients-head{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem .4rem;flex-shrink:0}
+.sb-clients-label{font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.add-client-btn{font-size:.58rem;font-weight:600;letter-spacing:.06em;color:var(--gold2);background:rgba(184,146,74,.1);border:1px solid rgba(184,146,74,.2);border-radius:6px;padding:.25rem .55rem;cursor:pointer;transition:all .2s}
+.add-client-btn:hover{background:rgba(184,146,74,.18)}
+
+.client-list{flex:1;overflow-y:auto;padding:.3rem .6rem .6rem}
+.client-list::-webkit-scrollbar{width:3px}
+.client-list::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+.client-row{display:flex;align-items:center;gap:.7rem;padding:.65rem .6rem;border-radius:10px;cursor:pointer;transition:background .18s;border:1px solid transparent;margin-bottom:.2rem}
+.client-row:hover{background:var(--surface2)}
+.client-row.active{background:rgba(184,146,74,.09);border-color:rgba(184,146,74,.15)}
+.client-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold3));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.62rem;color:#fff;flex-shrink:0}
+.client-info{flex:1;min-width:0}
+.client-name{font-size:.74rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-email{font-size:.6rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-status{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.cs-active{background:var(--green)}
+.cs-inactive{background:var(--muted)}
+
+.sb-bottom{padding:.75rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.sb-admin-user{font-size:.68rem;color:var(--muted)}
+.sb-logout{font-size:.6rem;color:var(--muted);cursor:pointer;transition:color .2s}
+.sb-logout:hover{color:var(--red)}
+
+/* ── MAIN ──────────────────────────────── */
+.main{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── TOPBAR ────────────────────────────── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.75rem;border-bottom:1px solid var(--border);background:rgba(6,6,6,.9);backdrop-filter:blur(16px);flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:1rem}
+.client-header-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.client-header-sub{font-size:.65rem;color:var(--muted);margin-top:.1rem}
+.topbar-right{display:flex;align-items:center;gap:.65rem}
+.tb-pill{font-size:.6rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .7rem;border-radius:6px}
+.tp-active{background:rgba(76,175,130,.1);color:var(--green);border:1px solid rgba(76,175,130,.18)}
+.tp-inactive{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.tb-btn{font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--border);border-radius:100px;padding:.38rem .85rem;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;transition:all .2s}
+.tb-btn:hover{color:#fff;border-color:var(--border2)}
+.tb-btn.danger{color:var(--red);border-color:rgba(224,92,92,.2)}
+.tb-btn.danger:hover{background:rgba(224,92,92,.08)}
+.save-indicator{font-size:.62rem;color:var(--green);opacity:0;transition:opacity .3s}
+.save-indicator.show{opacity:1}
+
+/* ── CONTENT AREA ──────────────────────── */
+.content{flex:1;overflow-y:auto;padding:1.5rem 1.75rem 2rem}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+
+/* ── TABS ──────────────────────────────── */
+.admin-tabs{display:flex;gap:.25rem;background:var(--surface2);border-radius:10px;padding:.22rem;border:1px solid var(--border);margin-bottom:1.4rem;width:fit-content}
+.at{font-size:.68rem;font-weight:500;letter-spacing:.04em;padding:.42rem .85rem;border-radius:8px;cursor:pointer;color:var(--muted);transition:all .2s}
+.at.active{background:var(--surface);color:#fff;border:1px solid var(--border)}
+
+/* ── CARDS ─────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.35rem;margin-bottom:1rem}
+.card-title{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1.1rem;display:flex;align-items:center;justify-content:space-between}
+.card-action{font-size:.6rem;font-weight:500;color:var(--gold2);cursor:pointer;letter-spacing:.04em;transition:opacity .2s}
+.card-action:hover{opacity:.7}
+
+/* ── FORM ──────────────────────────────── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem}
+.form-field{margin-bottom:.75rem}
+.form-field:last-child{margin-bottom:0}
+.fl{display:block;font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+.fi{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:'Inter',sans-serif;font-size:.78rem;color:#fff;font-weight:400;transition:border-color .2s,background .2s;outline:none}
+.fi:focus{border-color:var(--gold);background:rgba(184,146,74,.04)}
+.fi::placeholder{color:rgba(255,255,255,.18)}
+.fi:disabled{opacity:.45;cursor:not-allowed}
+select.fi{appearance:none;cursor:pointer}
+.fi-prefix-wrap{position:relative}
+.fi-prefix{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);font-size:.78rem;color:var(--muted);pointer-events:none}
+.fi.has-prefix{padding-left:1.5rem}
+.fi-suffix-wrap{position:relative}
+.fi-suffix{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);font-size:.78rem;color:var(--muted);pointer-events:none}
+.fi.has-suffix{padding-right:2rem}
+
+/* ── SAVE BTN ──────────────────────────── */
+.save-btn{background:var(--gold);color:#fff;border:none;border-radius:100px;padding:.65rem 1.6rem;font-family:'Syne',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.save-btn:hover{background:var(--gold2);box-shadow:0 6px 18px rgba(184,146,74,.3)}
+.save-btn:disabled{opacity:.5;cursor:not-allowed}
+.secondary-btn{background:var(--surface2);color:var(--muted2);border:1px solid var(--border);border-radius:100px;padding:.62rem 1.2rem;font-family:'Syne',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.secondary-btn:hover{color:#fff;border-color:var(--border2)}
+.danger-btn-sm{background:rgba(224,92,92,.08);color:var(--red);border:1px solid rgba(224,92,92,.18);border-radius:7px;padding:.3rem .65rem;font-size:.6rem;font-weight:600;cursor:pointer;transition:all .2s}
+.danger-btn-sm:hover{background:rgba(224,92,92,.16)}
+
+/* ── METRICS GRID ──────────────────────── */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+.metric-card{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:.9rem}
+.metric-label{font-size:.52rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+.metric-input-row{display:flex;align-items:center;gap:.35rem}
+
+/* ── TABLE ─────────────────────────────── */
+.admin-table{width:100%;border-collapse:collapse}
+.admin-table th{font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:.5rem .7rem .65rem;font-weight:400;border-bottom:1px solid var(--border)}
+.admin-table td{padding:.7rem .7rem;border-bottom:1px solid rgba(255,255,255,.032);font-size:.74rem;vertical-align:middle}
+.admin-table tr:last-child td{border-bottom:none}
+.admin-table tbody tr:hover td{background:rgba(255,255,255,.018)}
+.col-r{text-align:right}
+
+.badge-sm{font-size:.56rem;font-weight:600;letter-spacing:.04em;padding:.2rem .5rem;border-radius:5px}
+.bs-green{background:rgba(76,175,130,.12);color:var(--green)}
+.bs-gold{background:rgba(184,146,74,.12);color:var(--gold2)}
+.bs-blue{background:rgba(91,141,239,.12);color:var(--blue)}
+.bs-red{background:rgba(224,92,92,.12);color:var(--red)}
+.bs-grey{background:var(--surface2);color:var(--muted)}
+
+/* ── TX FORM ───────────────────────────── */
+.add-tx-form{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:1rem;margin-bottom:1rem;display:none}
+.add-tx-form.show{display:block}
+
+/* ── NOTES ─────────────────────────────── */
+.note-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem;margin-bottom:.5rem;position:relative}
+.note-text{font-size:.75rem;line-height:1.6;color:var(--muted2)}
+.note-meta{font-size:.58rem;color:var(--muted);margin-top:.4rem}
+.note-del{position:absolute;top:.6rem;right:.65rem;font-size:.65rem;color:var(--muted);cursor:pointer;transition:color .2s}
+.note-del:hover{color:var(--red)}
+
+/* ── EMPTY STATE ───────────────────────── */
+.empty-state{text-align:center;padding:3rem 1.5rem;color:var(--muted);font-size:.76rem}
+.empty-icon{font-size:2rem;margin-bottom:.75rem}
+
+/* ── REQUEST ROW ───────────────────────── */
+.req-row td{font-size:.72rem}
+
+/* ── PLACEHOLDER (no client selected) ─── */
+.no-client{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:3rem;color:var(--muted)}
+.no-client-icon{width:56px;height:56px;border-radius:16px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem}
+
+/* ── MSG ───────────────────────────────── */
+.msg{padding:.6rem .9rem;border-radius:8px;font-size:.72rem;margin-bottom:.85rem;display:none}
+.msg.err{background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.2);color:var(--red)}
+.msg.ok{background:rgba(76,175,130,.1);border:1px solid rgba(76,175,130,.2);color:var(--green)}
+.msg.show{display:block}
+
+/* ── MODAL ─────────────────────────────── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:900;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .22s}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:500px;max-height:88vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.7);transform:translateY(12px);transition:transform .22s}
+.modal-bg.open .modal-box{transform:translateY(0)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:1.4rem 1.4rem .5rem}
+.modal-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800}
+.modal-close{width:28px;height:28px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .2s}
+.modal-close:hover{color:#fff;background:var(--surface3)}
+.modal-body{padding:.75rem 1.4rem 1.4rem}
+</style>
+</head>
+<body>
+
+<!-- ADD CLIENT MODAL -->
+<div class="modal-bg" id="add-client-modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Add New Client</div>
+      <div class="modal-close" onclick="document.getElementById('add-client-modal').classList.remove('open')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="msg" id="add-msg"></div>
+      <div class="form-grid">
+        <div class="form-field"><label class="fl">Full Name</label><input class="fi" id="new-name" placeholder="Client full name"></div>
+        <div class="form-field"><label class="fl">Email Address</label><input class="fi" id="new-email" type="email" placeholder="client@email.com"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-field"><label class="fl">Phone</label><input class="fi" id="new-phone" placeholder="+44 7000 000000"></div>
+        <div class="form-field"><label class="fl">Country</label><input class="fi" id="new-country" placeholder="United Kingdom"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-field"><label class="fl">Inception Date</label><input class="fi" id="new-inception" type="date"></div>
+        <div class="form-field"><label class="fl">Share Class</label>
+          <select class="fi" id="new-share-class">
+            <option>Class A</option><option>Class B</option><option>Institutional</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field"><label class="fl">Status</label>
+        <select class="fi" id="new-status">
+          <option value="active">Active</option><option value="inactive">Inactive</option><option value="pending">Pending KYC</option>
+        </select>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:.6rem">
+        <button class="save-btn" onclick="saveNewClient()" style="flex:1">Add Client</button>
+        <button class="secondary-btn" onclick="document.getElementById('add-client-modal').classList.remove('open')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DOCUMENT MODAL -->
+<div class="modal-bg" id="add-doc-modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Add Document</div>
+      <div class="modal-close" onclick="document.getElementById('add-doc-modal').classList.remove('open')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="msg" id="doc-msg"></div>
+      <div class="form-field"><label class="fl">Document Name</label><input class="fi" id="doc-name" placeholder="e.g. May 2026 Statement"></div>
+      <div class="form-grid">
+        <div class="form-field"><label class="fl">Category</label>
+          <select class="fi" id="doc-category">
+            <option value="statement">Monthly Statement</option>
+            <option value="report">Report</option>
+            <option value="legal">Legal &amp; Tax</option>
+          </select>
+        </div>
+        <div class="form-field"><label class="fl">Date</label><input class="fi" id="doc-date" type="date"></div>
+      </div>
+      <div class="form-field"><label class="fl">File URL (Google Drive, Dropbox, etc.)</label><input class="fi" id="doc-url" placeholder="https://drive.google.com/file/d/…" type="url"></div>
+      <div class="form-field"><label class="fl">Size / Notes (optional)</label><input class="fi" id="doc-size" placeholder="e.g. PDF · 245 KB"></div>
+      <div style="margin-top:1rem;display:flex;gap:.6rem">
+        <button class="save-btn" onclick="saveDoc()" style="flex:1">Add Document</button>
+        <button class="secondary-btn" onclick="document.getElementById('add-doc-modal').classList.remove('open')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TRANSACTION MODAL -->
+<div class="modal-bg" id="add-tx-modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Add Transaction</div>
+      <div class="modal-close" onclick="document.getElementById('add-tx-modal').classList.remove('open')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="msg" id="tx-msg"></div>
+      <div class="form-grid">
+        <div class="form-field"><label class="fl">Date</label><input class="fi" id="tx-date" type="date"></div>
+        <div class="form-field"><label class="fl">Type</label>
+          <select class="fi" id="tx-type">
+            <option value="gain">P&L Gain</option>
+            <option value="deposit">Deposit</option>
+            <option value="withdrawal">Withdrawal</option>
+            <option value="fee">Fee</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field"><label class="fl">Description</label><input class="fi" id="tx-desc" placeholder="e.g. Monthly P&L Credit — May 2026"></div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="fl">Amount (USD)</label>
+          <div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="tx-amount" type="number" placeholder="0.00" step="0.01"></div>
+        </div>
+        <div class="form-field"><label class="fl">Status</label>
+          <select class="fi" id="tx-status"><option value="settled">Settled</option><option value="pending">Pending</option><option value="processing">Processing</option></select>
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:.6rem">
+        <button class="save-btn" onclick="saveTx()" style="flex:1">Add Transaction</button>
+        <button class="secondary-btn" onclick="document.getElementById('add-tx-modal').classList.remove('open')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-head">
+    <div class="sb-brand">
+      <div class="sb-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div>
+        <div class="sb-brand-text">Roseate</div>
+        <div class="sb-admin-badge">⚡ Admin CRM</div>
+      </div>
+    </div>
+    <div class="sb-search">
+      <svg class="sb-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="client-search" placeholder="Search clients…" oninput="filterClients(this.value)">
+    </div>
+  </div>
+
+  <div class="sb-stats">
+    <div class="sb-stat"><div class="sb-stat-val" id="stat-aum">—</div><div class="sb-stat-label">Total AUM</div></div>
+    <div class="sb-stat"><div class="sb-stat-val" id="stat-clients">—</div><div class="sb-stat-label">Clients</div></div>
+    <div class="sb-stat"><div class="sb-stat-val" id="stat-requests">—</div><div class="sb-stat-label">Requests</div></div>
+  </div>
+
+  <div class="sb-clients-head">
+    <div class="sb-clients-label">Clients</div>
+    <div class="add-client-btn" onclick="document.getElementById('add-client-modal').classList.add('open')">+ Add Client</div>
+  </div>
+
+  <div class="client-list" id="client-list">
+    <div class="empty-state" style="padding:1.5rem"><div class="empty-icon">👥</div>No clients yet</div>
+  </div>
+
+  <div class="sb-bottom">
+    <div class="sb-admin-user" id="admin-email-display">Admin</div>
+    <div class="sb-logout" onclick="handleLogout()">Sign Out</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="topbar" id="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="client-header-name" id="client-header-name">Select a client</div>
+        <div class="client-header-sub" id="client-header-sub">Choose from the list to manage their account</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="save-indicator" id="save-indicator">✓ Saved</span>
+      <div class="tb-pill tp-active" id="status-pill" style="display:none">Active</div>
+      <button class="tb-btn" id="view-portal-btn" style="display:none" onclick="viewClientPortal()">View Portal ↗</button>
+    </div>
+  </div>
+
+  <div class="content" id="main-content">
+    <div class="no-client">
+      <div class="no-client-icon">👈</div>
+      <div style="font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.4rem;color:var(--muted2)">No client selected</div>
+      <div style="font-size:.74rem">Select a client from the sidebar to view and edit their data, or add a new client.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════ */
+const SB_URL='https://eyyqtuyyuycoaoyrropj.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5eXF0dXl5dXljb2FveXJyb3BqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNjMwMzQsImV4cCI6MjA5NjkzOTAzNH0.WnNxn2jmUdngriqWyB59Ofg_D_cRXkACFeu9glIaGSc';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const ADMIN_EMAILS=['shubhamkhatkar06@gmail.com','shubhamkhatkar29@gmail.com'];
+
+let currentAdmin=null, selectedClient=null, allClients=[], currentTab='portfolio';
+
+/* ═══════════════════════════════════════════
+   AUTH GUARD
+═══════════════════════════════════════════ */
+sb.auth.getSession().then(({data:{session}})=>{
+  if(!session){window.location.href='portal.html';return;}
+  if(!ADMIN_EMAILS.includes(session.user.email)){
+    alert('Access denied. Admin only.');
+    window.location.href='dashboard.html';
+    return;
+  }
+  currentAdmin=session.user;
+  document.getElementById('admin-email-display').textContent=session.user.email;
+  loadClients();
+  loadSidebarStats();
+});
+sb.auth.onAuthStateChange((_,s)=>{if(!s)window.location.href='portal.html';});
+async function handleLogout(){await sb.auth.signOut();window.location.href='portal.html';}
+
+/* ═══════════════════════════════════════════
+   LOAD CLIENTS
+═══════════════════════════════════════════ */
+async function loadClients(){
+  const {data,error}=await sb.from('client_profiles').select('*').order('created_at',{ascending:false});
+  if(error){console.warn('client_profiles table may not exist yet. Run the SQL setup.',error);allClients=[];renderClientList([]);return;}
+  allClients=data||[];
+  renderClientList(allClients);
+}
+
+function renderClientList(clients){
+  const el=document.getElementById('client-list');
+  if(!clients.length){
+    el.innerHTML='<div class="empty-state" style="padding:1.5rem"><div class="empty-icon">👥</div>No clients yet. Click + Add Client to get started.</div>';
+    return;
+  }
+  el.innerHTML=clients.map(c=>{
+    const initials=(c.full_name||c.email).split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const isActive=selectedClient?.id===c.id;
+    return `<div class="client-row${isActive?' active':''}" onclick="selectClient('${c.id}')">
+      <div class="client-avatar">${initials}</div>
+      <div class="client-info">
+        <div class="client-name">${c.full_name||'No name'}</div>
+        <div class="client-email">${c.email}</div>
+      </div>
+      <div class="client-status ${c.status==='active'?'cs-active':'cs-inactive'}"></div>
+    </div>`;
+  }).join('');
+}
+
+function filterClients(q){
+  const filtered=allClients.filter(c=>(c.full_name||'').toLowerCase().includes(q.toLowerCase())||(c.email||'').toLowerCase().includes(q.toLowerCase()));
+  renderClientList(filtered);
+}
+
+async function loadSidebarStats(){
+  const {data:portfolios}=await sb.from('client_portfolio').select('portfolio_value');
+  const {data:requests}=await sb.from('capital_requests').select('id').eq('status','pending');
+  const {data:clients}=await sb.from('client_profiles').select('id').eq('status','active');
+  const aum=(portfolios||[]).reduce((s,p)=>s+parseFloat(p.portfolio_value||0),0);
+  document.getElementById('stat-aum').textContent=aum>=1000000?'$'+(aum/1000000).toFixed(1)+'M':aum>=1000?'$'+(aum/1000).toFixed(0)+'K':'$'+aum;
+  document.getElementById('stat-clients').textContent=(clients||[]).length;
+  document.getElementById('stat-requests').textContent=(requests||[]).length;
+}
+
+/* ═══════════════════════════════════════════
+   SELECT CLIENT
+═══════════════════════════════════════════ */
+async function selectClient(id){
+  selectedClient=allClients.find(c=>c.id===id);
+  if(!selectedClient) return;
+  renderClientList(allClients); // re-render to highlight
+  document.getElementById('client-header-name').textContent=selectedClient.full_name||selectedClient.email;
+  document.getElementById('client-header-sub').textContent=selectedClient.email+' · '+selectedClient.country+' · Since '+(selectedClient.inception_date||'—');
+  const pill=document.getElementById('status-pill');
+  pill.style.display='inline-flex';
+  pill.textContent=selectedClient.status==='active'?'Active':selectedClient.status==='inactive'?'Inactive':'Pending KYC';
+  pill.className='tb-pill '+(selectedClient.status==='active'?'tp-active':'tp-inactive');
+  document.getElementById('view-portal-btn').style.display='inline-flex';
+  loadTab('portfolio');
+}
+
+function viewClientPortal(){
+  window.open('dashboard.html','_blank');
+}
+
+/* ═══════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════ */
+function loadTab(tab){
+  currentTab=tab;
+  const tabs=['portfolio','transactions','documents','requests','notes','profile'];
+  const tabsHTML=tabs.map(t=>`<div class="at${t===tab?' active':''}" onclick="loadTab('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</div>`).join('');
+  const content=document.getElementById('main-content');
+  content.innerHTML=`<div class="admin-tabs">${tabsHTML}</div><div id="tab-content"></div>`;
+  if(tab==='portfolio') renderPortfolioTab();
+  if(tab==='transactions') renderTransactionsTab();
+  if(tab==='documents') renderDocumentsTab();
+  if(tab==='requests') renderRequestsTab();
+  if(tab==='notes') renderNotesTab();
+  if(tab==='profile') renderProfileTab();
+}
+
+/* ═══════════════════════════════════════════
+   PORTFOLIO TAB
+═══════════════════════════════════════════ */
+async function renderPortfolioTab(){
+  const tc=document.getElementById('tab-content');
+  tc.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">Loading…</div>';
+  const {data}=await sb.from('client_portfolio').select('*').eq('user_id',selectedClient.user_id||selectedClient.email).maybeSingle();
+  const p=data||{};
+  tc.innerHTML=`
+  <div class="msg" id="port-msg"></div>
+
+  <!-- KEY METRICS -->
+  <div class="card">
+    <div class="card-title">Key Portfolio Metrics
+      <button class="save-btn" style="font-size:.62rem;padding:.45rem 1.1rem" onclick="savePortfolio()">Save All Changes</button>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Portfolio Value</div><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-value" type="number" value="${p.portfolio_value||0}" placeholder="0.00"></div></div>
+      <div class="metric-card"><div class="metric-label">YTD Return %</div><div class="fi-suffix-wrap"><input class="fi has-suffix" id="pf-ytd" type="number" step="0.01" value="${p.ytd_return||0}" placeholder="0.00"><span class="fi-suffix">%</span></div></div>
+      <div class="metric-card"><div class="metric-label">Monthly Return %</div><div class="fi-suffix-wrap"><input class="fi has-suffix" id="pf-monthly" type="number" step="0.01" value="${p.monthly_return||0}" placeholder="0.00"><span class="fi-suffix">%</span></div></div>
+      <div class="metric-card"><div class="metric-label">Monthly Label</div><input class="fi" id="pf-monthly-label" value="${p.monthly_return_label||'May 2026'}" placeholder="May 2026"></div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Total P&L ($)</div><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-pnl" type="number" value="${p.total_pnl||0}" placeholder="0.00"></div></div>
+      <div class="metric-card"><div class="metric-label">Capital Deployed ($)</div><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-deployed" type="number" value="${p.capital_deployed||0}" placeholder="0.00"></div></div>
+      <div class="metric-card"><div class="metric-label">vs Benchmark %</div><div class="fi-suffix-wrap"><input class="fi has-suffix" id="pf-benchmark" type="number" step="0.01" value="${p.benchmark_gap||0}" placeholder="0.00"><span class="fi-suffix">%</span></div></div>
+      <div class="metric-card"><div class="metric-label">Sharpe Ratio</div><input class="fi" id="pf-sharpe" type="number" step="0.01" value="${p.sharpe_ratio||0}" placeholder="0.00"></div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Max Drawdown %</div><div class="fi-suffix-wrap"><input class="fi has-suffix" id="pf-drawdown" type="number" step="0.01" value="${p.max_drawdown||0}" placeholder="0.00"><span class="fi-suffix">%</span></div></div>
+      <div class="metric-card"><div class="metric-label">Win Rate %</div><div class="fi-suffix-wrap"><input class="fi has-suffix" id="pf-winrate" type="number" step="0.01" value="${p.win_rate||0}" placeholder="0.00"><span class="fi-suffix">%</span></div></div>
+      <div class="metric-card"><div class="metric-label">Sortino Ratio</div><input class="fi" id="pf-sortino" type="number" step="0.01" value="${p.sortino_ratio||0}" placeholder="0.00"></div>
+      <div class="metric-card"><div class="metric-label">Correlation S&P</div><input class="fi" id="pf-correlation" type="number" step="0.01" value="${p.sp_correlation||0}" placeholder="0.00"></div>
+    </div>
+  </div>
+
+  <!-- STRATEGY HOLDINGS -->
+  <div class="card">
+    <div class="card-title">Strategy Holdings</div>
+    <div class="form-grid">
+      <div>
+        <div style="font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2);margin-bottom:.6rem">Algorithmic Futures</div>
+        <div class="form-grid" style="gap:.5rem">
+          <div class="form-field"><label class="fl">Allocated ($)</label><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-af-alloc" type="number" value="${p.strategy_af_alloc||0}"></div></div>
+          <div class="form-field"><label class="fl">Current Value ($)</label><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-af-value" type="number" value="${p.strategy_af_value||0}"></div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:.6rem">Options Strategies</div>
+        <div class="form-grid" style="gap:.5rem">
+          <div class="form-field"><label class="fl">Allocated ($)</label><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-os-alloc" type="number" value="${p.strategy_os_alloc||0}"></div></div>
+          <div class="form-field"><label class="fl">Current Value ($)</label><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-os-value" type="number" value="${p.strategy_os_value||0}"></div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:.6rem">Discretionary Macro</div>
+        <div class="form-grid" style="gap:.5rem">
+          <div class="form-field"><label class="fl">Allocated ($)</label><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-dm-alloc" type="number" value="${p.strategy_dm_alloc||0}"></div></div>
+          <div class="form-field"><label class="fl">Current Value ($)</label><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-dm-value" type="number" value="${p.strategy_dm_value||0}"></div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem">Cash & Equivalents</div>
+        <div class="form-grid" style="gap:.5rem">
+          <div class="form-field"><label class="fl">Allocated ($)</label><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-ca-alloc" type="number" value="${p.strategy_ca_alloc||0}"></div></div>
+          <div class="form-field"><label class="fl">Current Value ($)</label><div class="fi-prefix-wrap"><span class="fi-prefix">$</span><input class="fi has-prefix" id="pf-ca-value" type="number" value="${p.strategy_ca_value||0}"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONTHLY RETURNS -->
+  <div class="card">
+    <div class="card-title">2026 Monthly Returns</div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem">
+      ${['Jan','Feb','Mar','Apr','May','Jun'].map(m=>`
+        <div><label class="fl">${m}</label>
+        <div class="fi-suffix-wrap"><input class="fi has-suffix" id="mr-${m.toLowerCase()}" type="number" step="0.01" value="${p['mr_'+m.toLowerCase()]||''}" placeholder="—"><span class="fi-suffix">%</span></div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+async function savePortfolio(){
+  const btn=event.target; btn.disabled=true; btn.textContent='Saving…';
+  const msg=document.getElementById('port-msg');
+  const userId=selectedClient.user_id||selectedClient.email;
+  const payload={
+    user_id:userId, email:selectedClient.email,
+    portfolio_value:parseFloat(document.getElementById('pf-value').value)||0,
+    ytd_return:parseFloat(document.getElementById('pf-ytd').value)||0,
+    monthly_return:parseFloat(document.getElementById('pf-monthly').value)||0,
+    monthly_return_label:document.getElementById('pf-monthly-label').value,
+    total_pnl:parseFloat(document.getElementById('pf-pnl').value)||0,
+    capital_deployed:parseFloat(document.getElementById('pf-deployed').value)||0,
+    benchmark_gap:parseFloat(document.getElementById('pf-benchmark').value)||0,
+    sharpe_ratio:parseFloat(document.getElementById('pf-sharpe').value)||0,
+    max_drawdown:parseFloat(document.getElementById('pf-drawdown').value)||0,
+    win_rate:parseFloat(document.getElementById('pf-winrate').value)||0,
+    sortino_ratio:parseFloat(document.getElementById('pf-sortino').value)||0,
+    sp_correlation:parseFloat(document.getElementById('pf-correlation').value)||0,
+    strategy_af_alloc:parseFloat(document.getElementById('pf-af-alloc').value)||0,
+    strategy_af_value:parseFloat(document.getElementById('pf-af-value').value)||0,
+    strategy_os_alloc:parseFloat(document.getElementById('pf-os-alloc').value)||0,
+    strategy_os_value:parseFloat(document.getElementById('pf-os-value').value)||0,
+    strategy_dm_alloc:parseFloat(document.getElementById('pf-dm-alloc').value)||0,
+    strategy_dm_value:parseFloat(document.getElementById('pf-dm-value').value)||0,
+    strategy_ca_alloc:parseFloat(document.getElementById('pf-ca-alloc').value)||0,
+    strategy_ca_value:parseFloat(document.getElementById('pf-ca-value').value)||0,
+    mr_jan:parseFloat(document.getElementById('mr-jan').value)||null,
+    mr_feb:parseFloat(document.getElementById('mr-feb').value)||null,
+    mr_mar:parseFloat(document.getElementById('mr-mar').value)||null,
+    mr_apr:parseFloat(document.getElementById('mr-apr').value)||null,
+    mr_may:parseFloat(document.getElementById('mr-may').value)||null,
+    mr_jun:parseFloat(document.getElementById('mr-jun').value)||null,
+    updated_at:new Date().toISOString()
+  };
+  const {error}=await sb.from('client_portfolio').upsert(payload,{onConflict:'user_id'});
+  btn.disabled=false; btn.textContent='Save All Changes';
+  if(error){showMsg(msg,error.message,'err');}
+  else{flashSaved();loadSidebarStats();}
+}
+
+/* ═══════════════════════════════════════════
+   TRANSACTIONS TAB
+═══════════════════════════════════════════ */
+async function renderTransactionsTab(){
+  const tc=document.getElementById('tab-content');
+  tc.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">Loading…</div>';
+  const {data}=await sb.from('client_transactions').select('*').eq('user_id',selectedClient.user_id||selectedClient.email).order('date',{ascending:false});
+  const rows=(data||[]);
+  const typeMap={gain:'P&L Gain',deposit:'Deposit',withdrawal:'Withdrawal',fee:'Fee'};
+  const badgeMap={gain:'bs-green',deposit:'bs-gold',withdrawal:'bs-blue',fee:'bs-red'};
+  tc.innerHTML=`
+  <div class="card">
+    <div class="card-title">Transactions
+      <button class="save-btn" style="font-size:.62rem;padding:.45rem 1.1rem" onclick="document.getElementById('add-tx-modal').classList.add('open');document.getElementById('tx-date').value=new Date().toISOString().split('T')[0]">+ Add Transaction</button>
+    </div>
+    ${rows.length===0?'<div class="empty-state"><div class="empty-icon">📋</div>No transactions yet. Add the first one above.</div>':`
+    <table class="admin-table">
+      <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Status</th><th class="col-r">Amount</th><th class="col-r">Actions</th></tr></thead>
+      <tbody>
+        ${rows.map(r=>`<tr>
+          <td>${r.date}</td>
+          <td>${r.description}</td>
+          <td><span class="badge-sm ${badgeMap[r.type]||'bs-grey'}">${typeMap[r.type]||r.type}</span></td>
+          <td><span class="badge-sm ${r.status==='settled'?'bs-green':r.status==='pending'?'bs-gold':'bs-blue'}">${r.status}</span></td>
+          <td class="col-r" style="color:${r.amount>=0?'var(--green)':'var(--red)'}">
+            ${r.amount>=0?'+':''}$${Math.abs(r.amount).toLocaleString('en-US',{minimumFractionDigits:2})}
+          </td>
+          <td class="col-r"><button class="danger-btn-sm" onclick="deleteTx('${r.id}')">Delete</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`}
+  </div>`;
+}
+
+async function saveTx(){
+  const msg=document.getElementById('tx-msg');
+  const date=document.getElementById('tx-date').value;
+  const desc=document.getElementById('tx-desc').value.trim();
+  const type=document.getElementById('tx-type').value;
+  const amount=parseFloat(document.getElementById('tx-amount').value);
+  const status=document.getElementById('tx-status').value;
+  if(!date||!desc||isNaN(amount)){showMsg(msg,'Please fill in all fields.','err');return;}
+  const finalAmt=(type==='withdrawal'||type==='fee')?-Math.abs(amount):Math.abs(amount);
+  const {error}=await sb.from('client_transactions').insert({
+    user_id:selectedClient.user_id||selectedClient.email,
+    email:selectedClient.email,date,description:desc,type,amount:finalAmt,status
+  });
+  if(error){showMsg(msg,error.message,'err');return;}
+  document.getElementById('add-tx-modal').classList.remove('open');
+  ['tx-date','tx-desc','tx-amount'].forEach(id=>document.getElementById(id).value='');
+  renderTransactionsTab(); flashSaved();
+}
+
+async function deleteTx(id){
+  if(!confirm('Delete this transaction?')) return;
+  await sb.from('client_transactions').delete().eq('id',id);
+  renderTransactionsTab();
+}
+
+/* ═══════════════════════════════════════════
+   DOCUMENTS TAB
+═══════════════════════════════════════════ */
+async function renderDocumentsTab(){
+  const tc=document.getElementById('tab-content');
+  tc.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">Loading…</div>';
+  const {data}=await sb.from('client_documents').select('*').eq('email',selectedClient.email).order('created_at',{ascending:false});
+  const docs=data||[];
+  const catLabel={statement:'Monthly Statement',report:'Report',legal:'Legal & Tax'};
+  const catBadge={statement:'bs-gold',report:'bs-blue',legal:'bs-grey'};
+  tc.innerHTML=`
+  <div class="card">
+    <div class="card-title">Documents
+      <button class="save-btn" style="font-size:.62rem;padding:.45rem 1.1rem"
+        onclick="document.getElementById('add-doc-modal').classList.add('open');document.getElementById('doc-date').value=new Date().toISOString().split('T')[0]">
+        + Add Document
+      </button>
+    </div>
+    <p style="font-size:.72rem;color:var(--muted);margin-bottom:1rem">
+      Upload your PDF to Google Drive / Dropbox / any host, set sharing to "Anyone with link can view", then paste the link here.
+    </p>
+    ${docs.length===0?'<div class="empty-state"><div class="empty-icon">📄</div>No documents yet. Add the first one above.</div>':`
+    <table class="admin-table">
+      <thead><tr><th>Name</th><th>Category</th><th>Date</th><th>Size / Notes</th><th>URL</th><th class="col-r">Actions</th></tr></thead>
+      <tbody>
+        ${docs.map(d=>`<tr>
+          <td style="font-weight:500">${d.name}</td>
+          <td><span class="badge-sm ${catBadge[d.category]||'bs-grey'}">${catLabel[d.category]||d.category}</span></td>
+          <td>${d.doc_date||'—'}</td>
+          <td style="color:var(--muted);font-size:.65rem">${d.size||'—'}</td>
+          <td>${d.url?`<a href="${d.url}" target="_blank" style="color:var(--gold2);font-size:.65rem;text-decoration:none">Open ↗</a>`:'<span style="color:var(--muted);font-size:.65rem">No URL</span>'}</td>
+          <td class="col-r"><button class="danger-btn-sm" onclick="deleteDoc('${d.id}')">Delete</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`}
+  </div>`;
+}
+
+async function saveDoc(){
+  const msg=document.getElementById('doc-msg');
+  const name=document.getElementById('doc-name').value.trim();
+  if(!name){showMsg(msg,'Document name is required.','err');return;}
+  const {error}=await sb.from('client_documents').insert({
+    user_id:selectedClient.user_id||selectedClient.email,
+    email:selectedClient.email,
+    name,
+    category:document.getElementById('doc-category').value,
+    doc_date:document.getElementById('doc-date').value||null,
+    url:document.getElementById('doc-url').value.trim()||null,
+    size:document.getElementById('doc-size').value.trim()||null
+  });
+  if(error){showMsg(msg,error.message,'err');return;}
+  document.getElementById('add-doc-modal').classList.remove('open');
+  ['doc-name','doc-url','doc-size'].forEach(id=>document.getElementById(id).value='');
+  renderDocumentsTab(); flashSaved();
+}
+
+async function deleteDoc(id){
+  if(!confirm('Delete this document?')) return;
+  await sb.from('client_documents').delete().eq('id',id);
+  renderDocumentsTab();
+}
+
+/* ═══════════════════════════════════════════
+   REQUESTS TAB
+═══════════════════════════════════════════ */
+async function renderRequestsTab(){
+  const tc=document.getElementById('tab-content');
+  const {data}=await sb.from('capital_requests').select('*').eq('user_email',selectedClient.email).order('created_at',{ascending:false});
+  const rows=data||[];
+  const statusColors={pending:'bs-gold',processing:'bs-blue',approved:'bs-green',rejected:'bs-red'};
+  tc.innerHTML=`
+  <div class="card">
+    <div class="card-title">Capital Requests</div>
+    ${rows.length===0?'<div class="empty-state"><div class="empty-icon">💰</div>No requests submitted yet.</div>':`
+    <table class="admin-table">
+      <thead><tr><th>Date</th><th>Type</th><th>Method</th><th>Amount</th><th>Ref</th><th>Status</th><th class="col-r">Update</th></tr></thead>
+      <tbody>
+        ${rows.map(r=>`<tr>
+          <td>${new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+          <td style="text-transform:capitalize">${r.type}</td>
+          <td>${r.method==='bank'?'Bank':r.coin||'Crypto'}</td>
+          <td style="color:var(--gold2);font-weight:600">$${parseFloat(r.amount).toLocaleString()}</td>
+          <td style="font-size:.62rem;color:var(--muted)">${r.ref_id||'—'}</td>
+          <td><span class="badge-sm ${statusColors[r.status]||'bs-grey'}">${r.status}</span></td>
+          <td class="col-r">
+            <select class="fi" style="padding:.3rem .5rem;font-size:.65rem;width:auto" onchange="updateRequestStatus('${r.id}',this.value)">
+              <option value="pending" ${r.status==='pending'?'selected':''}>Pending</option>
+              <option value="processing" ${r.status==='processing'?'selected':''}>Processing</option>
+              <option value="approved" ${r.status==='approved'?'selected':''}>Approved</option>
+              <option value="rejected" ${r.status==='rejected'?'selected':''}>Rejected</option>
+            </select>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`}
+  </div>`;
+}
+
+async function updateRequestStatus(id,status){
+  await sb.from('capital_requests').update({status}).eq('id',id);
+  flashSaved(); loadSidebarStats();
+}
+
+/* ═══════════════════════════════════════════
+   NOTES TAB
+═══════════════════════════════════════════ */
+async function renderNotesTab(){
+  const tc=document.getElementById('tab-content');
+  const {data}=await sb.from('client_notes').select('*').eq('user_id',selectedClient.user_id||selectedClient.email).order('created_at',{ascending:false});
+  const notes=data||[];
+  tc.innerHTML=`
+  <div class="card">
+    <div class="card-title">CRM Notes</div>
+    <div class="form-field">
+      <label class="fl">Add Note</label>
+      <textarea class="fi" id="new-note" rows="3" placeholder="Call notes, follow-ups, compliance observations…" style="resize:vertical;line-height:1.55"></textarea>
+    </div>
+    <button class="save-btn" style="font-size:.62rem;padding:.48rem 1.1rem" onclick="addNote()">Add Note</button>
+  </div>
+  <div id="notes-list">
+    ${notes.length===0?'<div class="empty-state"><div class="empty-icon">📝</div>No notes yet. Add your first note above.</div>':
+      notes.map(n=>`<div class="note-item" id="note-${n.id}">
+        <div class="note-text">${n.note.replace(/\n/g,'<br>')}</div>
+        <div class="note-meta">${new Date(n.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="note-del" onclick="deleteNote('${n.id}')">✕</div>
+      </div>`).join('')
+    }
+  </div>`;
+}
+
+async function addNote(){
+  const text=document.getElementById('new-note').value.trim();
+  if(!text) return;
+  await sb.from('client_notes').insert({user_id:selectedClient.user_id||selectedClient.email,email:selectedClient.email,note:text});
+  renderNotesTab(); flashSaved();
+}
+
+async function deleteNote(id){
+  await sb.from('client_notes').delete().eq('id',id);
+  document.getElementById('note-'+id)?.remove();
+}
+
+/* ═══════════════════════════════════════════
+   PROFILE TAB
+═══════════════════════════════════════════ */
+function renderProfileTab(){
+  const c=selectedClient;
+  document.getElementById('tab-content').innerHTML=`
+  <div class="msg" id="prof-msg"></div>
+  <div class="card">
+    <div class="card-title">Client Profile
+      <button class="save-btn" style="font-size:.62rem;padding:.45rem 1.1rem" onclick="saveProfile()">Save Changes</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><label class="fl">Full Legal Name</label><input class="fi" id="edit-name" value="${c.full_name||''}"></div>
+      <div class="form-field"><label class="fl">Email Address</label><input class="fi" id="edit-email" value="${c.email||''}" disabled></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><label class="fl">Phone</label><input class="fi" id="edit-phone" value="${c.phone||''}"></div>
+      <div class="form-field"><label class="fl">Country</label><input class="fi" id="edit-country" value="${c.country||''}"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><label class="fl">Inception Date</label><input class="fi" id="edit-inception" type="date" value="${c.inception_date||''}"></div>
+      <div class="form-field"><label class="fl">Share Class</label>
+        <select class="fi" id="edit-share-class">
+          <option ${c.share_class==='Class A'?'selected':''}>Class A</option>
+          <option ${c.share_class==='Class B'?'selected':''}>Class B</option>
+          <option ${c.share_class==='Institutional'?'selected':''}>Institutional</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><label class="fl">Risk Appetite</label>
+        <select class="fi" id="edit-risk">
+          <option value="" ${!c.risk_appetite?'selected':''}>Not set</option>
+          <option value="conservative" ${c.risk_appetite==='conservative'?'selected':''}>Conservative</option>
+          <option value="balanced" ${c.risk_appetite==='balanced'?'selected':''}>Balanced</option>
+          <option value="aggressive" ${c.risk_appetite==='aggressive'?'selected':''}>Aggressive</option>
+        </select>
+      </div>
+      <div class="form-field"><label class="fl">Account Status</label>
+        <select class="fi" id="edit-status">
+          <option value="active" ${c.status==='active'?'selected':''}>Active</option>
+          <option value="inactive" ${c.status==='inactive'?'selected':''}>Inactive</option>
+          <option value="pending" ${c.status==='pending'?'selected':''}>Pending KYC</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="color:var(--red)">Danger Zone</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:1rem">Permanently remove this client and all their data. This cannot be undone.</p>
+    <button class="secondary-btn" style="border-color:rgba(224,92,92,.3);color:var(--red)" onclick="deleteClient()">Delete Client</button>
+  </div>`;
+}
+
+async function saveProfile(){
+  const msg=document.getElementById('prof-msg');
+  const {error}=await sb.from('client_profiles').update({
+    full_name:document.getElementById('edit-name').value.trim(),
+    phone:document.getElementById('edit-phone').value.trim(),
+    country:document.getElementById('edit-country').value.trim(),
+    inception_date:document.getElementById('edit-inception').value||null,
+    share_class:document.getElementById('edit-share-class').value,
+    risk_appetite:document.getElementById('edit-risk').value||null,
+    status:document.getElementById('edit-status').value,
+    updated_at:new Date().toISOString()
+  }).eq('id',selectedClient.id);
+  if(error){showMsg(msg,error.message,'err');return;}
+  // Update local state
+  selectedClient.full_name=document.getElementById('edit-name').value.trim();
+  selectedClient.status=document.getElementById('edit-status').value;
+  await loadClients();
+  document.getElementById('client-header-name').textContent=selectedClient.full_name||selectedClient.email;
+  flashSaved();
+}
+
+async function deleteClient(){
+  if(!confirm(`Permanently delete ${selectedClient.full_name||selectedClient.email}? This cannot be undone.`)) return;
+  await sb.from('client_portfolio').delete().eq('user_id',selectedClient.user_id||selectedClient.email);
+  await sb.from('client_transactions').delete().eq('user_id',selectedClient.user_id||selectedClient.email);
+  await sb.from('client_notes').delete().eq('user_id',selectedClient.user_id||selectedClient.email);
+  await sb.from('client_profiles').delete().eq('id',selectedClient.id);
+  selectedClient=null;
+  document.getElementById('client-header-name').textContent='Select a client';
+  document.getElementById('client-header-sub').textContent='Choose from the list to manage their account';
+  document.getElementById('status-pill').style.display='none';
+  document.getElementById('view-portal-btn').style.display='none';
+  document.getElementById('main-content').innerHTML='<div class="no-client"><div class="no-client-icon">👈</div><div style="font-family:Syne,sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.4rem;color:var(--muted2)">No client selected</div><div style="font-size:.74rem">Select a client from the sidebar to manage their account.</div></div>';
+  await loadClients(); loadSidebarStats();
+}
+
+/* ═══════════════════════════════════════════
+   ADD NEW CLIENT
+═══════════════════════════════════════════ */
+async function saveNewClient(){
+  const msg=document.getElementById('add-msg');
+  const name=document.getElementById('new-name').value.trim();
+  const email=document.getElementById('new-email').value.trim();
+  if(!name||!email){showMsg(msg,'Name and email are required.','err');return;}
+  const {error}=await sb.from('client_profiles').insert({
+    full_name:name, email,
+    phone:document.getElementById('new-phone').value.trim()||null,
+    country:document.getElementById('new-country').value.trim()||null,
+    inception_date:document.getElementById('new-inception').value||null,
+    share_class:document.getElementById('new-share-class').value,
+    status:document.getElementById('new-status').value
+  });
+  if(error){showMsg(msg,error.message,'err');return;}
+  document.getElementById('add-client-modal').classList.remove('open');
+  ['new-name','new-email','new-phone','new-country','new-inception'].forEach(id=>document.getElementById(id).value='');
+  await loadClients(); loadSidebarStats();
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function flashSaved(){
+  const el=document.getElementById('save-indicator');
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+function showMsg(el,text,type){el.textContent=text;el.className='msg '+type+' show';setTimeout(()=>el.className='msg',4000);}
+function closeModal(e){
+  if(e.target.classList.contains('modal-bg')) e.target.classList.remove('open');
+}
+</script>
+</body>
+</html>
